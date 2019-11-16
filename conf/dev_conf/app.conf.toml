@@ -1,0 +1,23 @@
+[run]
+waitTimeout = 0
+httpPort = 9001
+mode = 'release'
+maxAllowed = 5
+
+[log]
+enable = true
+path = "./logs"
+level = "info"
+rotatTime = 1   # 日志切割时间间隔：1天
+maxAge = 30     # 文件最大保存时间：30天
+
+[mysql]
+maxIdle = 5      # 最大空闲连接数
+maxOpen = 10     # 最大打开连接数
+debug = false
+
+webAddr = "root:123456@tcp(localhost:3306)/fightcoder?charset=utf8&loc=Asia%2FShanghai&parseTime=true&wait_timeout=3600"
+
+[jwt]
+encodeMethod = "HS256" # [HS256, HS384, HS512]
+maxEffectiveTime = 3  # 最大存活时间:天

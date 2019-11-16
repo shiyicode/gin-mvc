@@ -9,4 +9,5 @@ public/
 .idea/
 output/
 logs/
-go-web-framework
+.vscode/
+gin-mvc

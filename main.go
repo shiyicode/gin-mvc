@@ -3,28 +3,17 @@ package main
 import (
 	"flag"
 
-	"github.com/chuxinplan/go-web-framework/common/conf"
-	"github.com/chuxinplan/go-web-framework/common/db"
-	"github.com/chuxinplan/go-web-framework/common/log"
-	"github.com/chuxinplan/go-web-framework/router"
+	"github.com/chuxinplan/gin-mvc/common/config"
+	_ "github.com/chuxinplan/gin-mvc/common/validator"
+	"github.com/chuxinplan/gin-mvc/router"
 )
 
 func main() {
-	confPath := flag.String("conf", "conf/app.conf.toml", "set config file")
+	configFile := flag.String("c", "", "set config file")
 	flag.Parse()
 
-	Init(*confPath)
+	config.Load(*configFile)
 
-	router := router.GetInstance()
+	router.Init()
 	router.Run()
-}
-
-func Init(confPath string) {
-	conf.Init(confPath)
-
-	db.Init()
-	defer db.Close()
-
-	log.Init()
-	defer log.Close()
 }
