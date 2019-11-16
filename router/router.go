@@ -8,7 +8,6 @@ import (
 	"github.com/chuxinplan/gin-mvc/router/middleware"
 	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
-
 )
 
 var router *gin.Engine
@@ -18,7 +17,6 @@ func Init() {
 	//gin.SetMode(g.Conf().Run.Mode)
 
 	router.Use(middleware.MaxAllowed(10))
-
 	router.Use(middleware.Logger())
 
 	v1Router := router.Group("v1/api")
@@ -34,7 +32,7 @@ func Init() {
 
 	testRouter := router.Group("v1/test")
 	{
-		testRouter.GET("ping", controller.HttpHandlerTest)
+		testRouter.GET("ping", controller.HttpHandlerPing)
 	}
 }
 

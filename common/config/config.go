@@ -55,7 +55,7 @@ func Get() Config {
 	defer _lock.RUnlock()
 
 	if _configFile == "" {
-		log.Fatalln("config file not specified: use -c $filename")
+		log.Fatalln("config file not load")
 	}
 	return _config
 }
@@ -68,14 +68,14 @@ func Load(configFile string) {
 		log.Fatal(errors.Wrapf(err, "load file from %s failed", _configFile))
 	}
 
-	log.Infof("load file from %s success: %s, config: %#v", _configFile, _config)
+	log.Infof("load file from %s success; config: %#v", _configFile, _config)
 }
 
 func ReLoad() {
 	if err := loadConfig(); err != nil {
 		log.Error(errors.Wrapf(err, "load file from %s failed", _configFile))
 	}
-	log.Infof("reload file from %s success: %s, config: %#v", _configFile, _config)
+	log.Infof("reload file from %s success; config: %#v", _configFile, _config)
 }
 
 func loadConfig() error {

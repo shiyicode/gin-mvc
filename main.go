@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+
 	"github.com/chuxinplan/gin-mvc/common/config"
 	"github.com/chuxinplan/gin-mvc/common/db"
 	"github.com/chuxinplan/gin-mvc/common/logger"
@@ -14,11 +15,10 @@ func main() {
 	flag.Parse()
 
 	config.Load(*configFile)
+	logger.Init()
 
 	db.Init()
 	defer db.Close()
-
-	logger.Init()
 
 	router.Init()
 	router.Run()

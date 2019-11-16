@@ -6,12 +6,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func HttpHandlerTest(c *gin.Context) {
+func HttpHandlerPing(c *gin.Context) {
 	log.Infof("get pong\n")
 	log.Warningf("get pong\n")
-	c.JSON(200, gin.H{
-		"message": "pong",
-	})
+	c.JSON(200, "ok")
 
 	// token, err := managers.AccountLogin(account.Email, account.Password)
 	// if err != nil {

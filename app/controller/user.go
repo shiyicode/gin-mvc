@@ -1,8 +1,7 @@
 package controller
 
 import (
-	"fmt"
-
+	"github.com/chuxinplan/gin-mvc/common/errors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,7 +10,7 @@ import (
 type RegisterParam struct {
 	Email    string `form:"email" binding:"required,email"`
 	Username string `form:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Password string `form:"password" binding:"required"`
 }
 
 type LoginParam struct {
@@ -23,8 +22,7 @@ type LoginParam struct {
 func HttpHandlerLogin(c *gin.Context) {
 	param := LoginParam{}
 	if err := c.ShouldBind(&param); err != nil {
-		fmt.Println(err.Error())
-		panic(err)
+		panic(errors.New(errors.ErrValidation, err.Error()))
 	}
 
 	c.JSON(200, gin.H{"status": "you are logged in"})

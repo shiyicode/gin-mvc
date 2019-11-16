@@ -19,10 +19,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func init() {
-
-}
-
 var _levelMap = map[string]log.Level{
 	"debug": log.DebugLevel,
 	"info":  log.InfoLevel,

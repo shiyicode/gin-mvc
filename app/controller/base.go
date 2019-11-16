@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 
-	"github.com/chuxinplan/gin-mvc/common/error"
+	"github.com/chuxinplan/gin-mvc/common/errors"
 )
 
 type Result struct {
@@ -25,7 +25,7 @@ func success(data ...interface{}) (int, *Result) {
 	return http.StatusOK, result
 }
 
-func failure(err *error.Err) (int, *Result) {
+func failure(err *errors.Err) (int, *Result) {
 	result := &Result{
 		Code:    err.Code(),
 		Message: err.Error(),

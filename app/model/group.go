@@ -8,4 +8,8 @@ type Group struct {
 }
 
 type GroupBO struct {
+	Id          int64
+	Name        string
+	Description string
+	Users       []*User
 }
