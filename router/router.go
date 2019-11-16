@@ -21,7 +21,7 @@ func Init() {
 	v1Router := router.Group("v1/api")
 	{
 		v1Router.POST("login", controller.HttpHandlerLogin)
-		v1Router.POST("register", controller.HttpHandlerLogin)
+		v1Router.POST("register", controller.HttpHandlerRegister)
 	}
 
 	authV1Router := router.Group("v1/auth")
