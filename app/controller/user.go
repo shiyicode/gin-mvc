@@ -2,7 +2,6 @@ package controller
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -43,20 +42,9 @@ func HttpHandlerLogin(c *gin.Context) {
 	// }
 	//
 	// http.SetCookie(c.Writer, cookie)
-	c.JSON(http.StatusOK, "ok")
+	c.JSON(success())
 }
 
-//
-// func httpHandlerRegister(c *gin.Context) {
-// 	account := AccountParam{}
-// 	err := c.Bind(&account)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	userId, err := managers.AccountRegister(account.Email, account.Password)
-// 	if err != nil {
-// 		c.JSON(http.StatusOK, base.Fail(err.Error()))
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, base.Success(userId))
-// }
+func HttpHandlerRegister(c *gin.Context) {
+	c.JSON(success())
+}

@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/chuxinplan/gin-mvc/common/error"
-	"github.com/gin-gonic/gin"
 )
 
 type Result struct {
@@ -14,7 +13,7 @@ type Result struct {
 }
 
 // data为可选参数
-func Success(c *gin.Context, data ...interface{}) {
+func success(data ...interface{}) (int, *Result) {
 	result := &Result{
 		Code:    0,
 		Message: "success",
@@ -23,27 +22,14 @@ func Success(c *gin.Context, data ...interface{}) {
 	if len(data) > 0 {
 		result.Data = data[0]
 	}
-	c.JSON(http.StatusOK, result)
+	return http.StatusOK, result
 }
 
-func Failure(c *gin.Context, err *error.Err) {
-	//panic(&HttpResponse{1, msg[0], 0})
+func failure(err *error.Err) (int, *Result) {
 	result := &Result{
 		Code:    err.Code(),
 		Message: err.Error(),
 		Data:    nil,
 	}
-	c.JSON(err.HTTPCode(), result)
-}
-
-func GetUserId(c *gin.Context) int64 {
-	userId, exists := c.Get("userId")
-	if exists == false {
-		return 0
-	}
-	id, ok := userId.(int64)
-	if !ok {
-		return 0
-	}
-	return id
+	return err.HTTPCode(), result
 }

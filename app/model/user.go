@@ -3,14 +3,10 @@ package model
 type User struct {
 	Id       int64
 	Email    string
-	Password string
 	Username string
-	Nickname string
+	Password string
 }
 
-type Book struct {
-	Id          int64
-	UserId      int64
-	Title       string
-	Description string
+func UserCreate(email string, username string, password string) (int64, error) {
+	return 0, nil
 }
