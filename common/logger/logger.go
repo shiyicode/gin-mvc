@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -8,6 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"github.com/chuxinplan/gin-mvc/common/config"
 
@@ -18,6 +21,13 @@ import (
 
 func init() {
 
+}
+
+var _levelMap = map[string]log.Level{
+	"debug": log.DebugLevel,
+	"info":  log.InfoLevel,
+	"warn":  log.WarnLevel,
+	"error": log.ErrorLevel,
 }
 
 func Init() {
@@ -31,37 +41,58 @@ func Init() {
 
 	err := os.MkdirAll(conf.Log.Path, 0777)
 	if err != nil {
-		log.Fatalf("create directory %s failure\n", conf.Log.Path)
+		log.Fatalf("create directory %s failure", conf.Log.Path)
 	}
 
-	log.SetLevel(log.InfoLevel)
+	if level, ok := _levelMap[conf.Log.Level]; !ok {
+		log.SetLevel(log.InfoLevel)
+	} else {
+		log.SetLevel(level)
+	}
+	//log.SetReportCaller(true)
+
 	log.SetFormatter(&log.TextFormatter{ForceColors: true})
+
+	filenameHook := NewHook()
+	filenameHook.Field = "line"
+	log.AddHook(filenameHook)
 
 	logPath := conf.Log.Path
 	maxAge := time.Duration(conf.Log.MaxAge)
-	rotationTime := time.Duration(conf.Log.RotatTime)
-	hook := lfshook.NewHook(lfshook.WriterMap{
-		log.DebugLevel: GetLogWriter(logPath, "debug", maxAge, rotationTime),
-		log.InfoLevel:  GetLogWriter(logPath, "info", maxAge, rotationTime),
-		log.WarnLevel:  GetLogWriter(logPath, "warn", maxAge, rotationTime),
-		log.ErrorLevel: GetLogWriter(logPath, "error", maxAge, rotationTime),
-		log.FatalLevel: GetLogWriter(logPath, "fatal", maxAge, rotationTime),
-		log.PanicLevel: GetLogWriter(logPath, "panic", maxAge, rotationTime),
+	rotateTime := time.Duration(conf.Log.RotateTime)
+	fileName := "web.log"
+	fmt.Printf("test [%s]", fileName)
+
+	allHook := lfshook.NewHook(lfshook.WriterMap{
+		log.DebugLevel: GetLogWriter(logPath, fileName, maxAge, rotateTime),
+		log.InfoLevel:  GetLogWriter(logPath, fileName, maxAge, rotateTime),
+		log.WarnLevel:  GetLogWriter(logPath, fileName, maxAge, rotateTime),
+		log.ErrorLevel: GetLogWriter(logPath, fileName, maxAge, rotateTime),
+		log.FatalLevel: GetLogWriter(logPath, fileName, maxAge, rotateTime),
+		log.PanicLevel: GetLogWriter(logPath, fileName, maxAge, rotateTime),
 	}, &log.TextFormatter{ForceColors: true})
-	log.AddHook(hook)
+	log.AddHook(allHook)
+
+	wfHook := lfshook.NewHook(lfshook.WriterMap{
+		log.WarnLevel:  GetLogWriter(logPath, fileName+".wf", maxAge, rotateTime),
+		log.ErrorLevel: GetLogWriter(logPath, fileName+".wf", maxAge, rotateTime),
+		log.FatalLevel: GetLogWriter(logPath, fileName+".wf", maxAge, rotateTime),
+		log.PanicLevel: GetLogWriter(logPath, fileName+".wf", maxAge, rotateTime),
+	}, &log.TextFormatter{ForceColors: true})
+	log.AddHook(wfHook)
 }
 
-func GetLogWriter(logPath string, logType string, maxAge time.Duration, rotationTime time.Duration) io.Writer {
-	logPath = path.Join(getCurrPath(), logPath, logType, logType)
+func GetLogWriter(logPath string, logType string, maxAge time.Duration, rotateTime time.Duration) io.Writer {
+	logPath = path.Join(getCurrPath(), logPath, logType)
 
 	writer, err := rotatelogs.New(
-		logPath+".%Y%m%d.log",
+		logPath+".%Y%m%d",
 		rotatelogs.WithLinkName(logPath),
 		rotatelogs.WithMaxAge(maxAge*24*time.Hour),
-		rotatelogs.WithRotationTime(rotationTime*24*time.Hour),
+		rotatelogs.WithRotationTime(rotateTime*24*time.Hour),
 	)
 	if err != nil {
-		return nil
+		log.Fatal(errors.Wrap(err, "get log writer failed"))
 	}
 	return writer
 }

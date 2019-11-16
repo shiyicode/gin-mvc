@@ -2,17 +2,23 @@ package main
 
 import (
 	"flag"
-
 	"github.com/chuxinplan/gin-mvc/common/config"
+	"github.com/chuxinplan/gin-mvc/common/db"
+	"github.com/chuxinplan/gin-mvc/common/logger"
 	_ "github.com/chuxinplan/gin-mvc/common/validator"
 	"github.com/chuxinplan/gin-mvc/router"
 )
 
 func main() {
-	configFile := flag.String("c", "", "set config file")
+	configFile := flag.String("c", "conf/app.conf.toml", "set config file")
 	flag.Parse()
 
 	config.Load(*configFile)
+
+	db.Init()
+	defer db.Close()
+
+	logger.Init()
 
 	router.Init()
 	router.Run()

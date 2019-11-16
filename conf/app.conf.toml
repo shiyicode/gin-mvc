@@ -7,8 +7,8 @@ maxAllowed = 5
 [log]
 enable = true
 path = "./logs"
-level = "info"
-rotatTime = 1   # 日志切割时间间隔：1天
+level = "info"  # debug,info,warn,error
+rotateTime = 1   # 日志切割时间间隔：1天
 maxAge = 30     # 文件最大保存时间：30天
 
 [mysql]

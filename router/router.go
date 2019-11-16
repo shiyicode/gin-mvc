@@ -8,6 +8,7 @@ import (
 	"github.com/chuxinplan/gin-mvc/router/middleware"
 	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
+
 )
 
 var router *gin.Engine
@@ -18,6 +19,8 @@ func Init() {
 
 	router.Use(middleware.MaxAllowed(10))
 
+	router.Use(middleware.Logger())
+
 	v1Router := router.Group("v1/api")
 	{
 		v1Router.POST("login", controller.HttpHandlerLogin)
@@ -27,6 +30,11 @@ func Init() {
 	authV1Router := router.Group("v1/auth")
 	{
 		authV1Router.POST("login", controller.HttpHandlerLogin)
+	}
+
+	testRouter := router.Group("v1/test")
+	{
+		testRouter.GET("ping", controller.HttpHandlerTest)
 	}
 }
 

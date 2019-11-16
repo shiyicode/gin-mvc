@@ -27,6 +27,7 @@ type RunConfig struct {
 type LogConfig struct {
 	Enable     bool   `toml:"enable"`
 	Path       string `toml:"path"`
+	Level      string `toml:"level"`
 	RotateTime int    `toml:"rotateTime"`
 	MaxAge     int    `toml:"maxAge"`
 }
@@ -61,11 +62,11 @@ func Get() Config {
 
 // 加载配置文件
 func Load(configFile string) {
+	_configFile = configFile
+
 	if err := loadConfig(); err != nil {
 		log.Fatal(errors.Wrapf(err, "load file from %s failed", _configFile))
 	}
-
-	_configFile = configFile
 
 	log.Infof("load file from %s success: %s, config: %#v", _configFile, _config)
 }
@@ -80,7 +81,6 @@ func ReLoad() {
 func loadConfig() error {
 	_lock.Lock()
 	defer _lock.Unlock()
-
 	// 配置文件是否存在
 	if _, err := os.Stat(_configFile); os.IsNotExist(err) {
 		return err
