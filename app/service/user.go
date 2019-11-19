@@ -1,14 +1,28 @@
 package service
 
-import (
-	"github.com/chuxinplan/gin-mvc/app/controller"
-	"github.com/chuxinplan/gin-mvc/common/errors"
-)
-
 type UserService struct {
-	userId int64
+	baseService
 }
 
-func (userService UserService) Login(param *controller.LoginParam) (interface{}, *errors.Err) {
-	return nil, errors.New(errors.ErrDatabase, "")
+type RegisterParam struct {
+	Email    string `form:"email" binding:"required,email"`
+	Username string `form:"username" binding:"required"`
+	Password string `form:"password" binding:"required"`
+}
+
+type LoginParam struct {
+	Type     string `form:"type" binding:"required,oneof=email username"`
+	Account  string `form:"account" binding:"required"`
+	Password string `form:"password" binding:"required"`
+}
+
+func NewUserService(username string, requestId string) UserService {
+	return UserService{
+		baseService: newBaseService(username, requestId),
+	}
+}
+
+func (userService UserService) Login(param *LoginParam) interface{} {
+	// panic(errors.New(errors.ErrDatabase, ""))
+	return nil
 }

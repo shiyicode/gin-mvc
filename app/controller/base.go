@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/chuxinplan/gin-mvc/common/errors"
+	"github.com/gin-gonic/gin"
 )
 
 type Result struct {
@@ -32,4 +33,28 @@ func failure(err *errors.Err) (int, *Result) {
 		Data:    nil,
 	}
 	return err.HTTPCode(), result
+}
+
+func getUsername(c *gin.Context) string {
+	username, exists := c.Get("username")
+	if exists == false {
+		return ""
+	}
+	name, ok := username.(string)
+	if !ok {
+		return ""
+	}
+	return name
+}
+
+func getRequestId(c *gin.Context) string {
+	requestId, exists := c.Get("requestId")
+	if exists == false {
+		return ""
+	}
+	reqId, ok := requestId.(string)
+	if !ok {
+		return ""
+	}
+	return reqId
 }

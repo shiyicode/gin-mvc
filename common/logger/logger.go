@@ -3,6 +3,7 @@ package logger
 import (
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"os/exec"
 	"path"
@@ -16,22 +17,22 @@ import (
 
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/rifflock/lfshook"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
-var _levelMap = map[string]log.Level{
-	"debug": log.DebugLevel,
-	"info":  log.InfoLevel,
-	"warn":  log.WarnLevel,
-	"error": log.ErrorLevel,
+var _levelMap = map[string]logrus.Level{
+	"debug": logrus.DebugLevel,
+	"info":  logrus.InfoLevel,
+	"warn":  logrus.WarnLevel,
+	"error": logrus.ErrorLevel,
 }
 
 func Init() {
 	conf := config.Get()
 	if !conf.Log.Enable {
-		log.Info("log to std err")
-		log.SetOutput(os.Stdout)
-		log.SetLevel(log.DebugLevel)
+		logrus.Info("log to logger err")
+		logrus.SetOutput(os.Stdout)
+		logrus.SetLevel(logrus.DebugLevel)
 		return
 	}
 
@@ -41,17 +42,13 @@ func Init() {
 	}
 
 	if level, ok := _levelMap[conf.Log.Level]; !ok {
-		log.SetLevel(log.InfoLevel)
+		logger.SetLevel(logrus.InfoLevel)
 	} else {
-		log.SetLevel(level)
+		logger.SetLevel(level)
 	}
 	//log.SetReportCaller(true)
 
-	log.SetFormatter(&log.TextFormatter{ForceColors: true})
-
-	filenameHook := NewHook()
-	filenameHook.Field = "line"
-	log.AddHook(filenameHook)
+	logger.SetFormatter(&logrus.TextFormatter{ForceColors: true})
 
 	logPath := conf.Log.Path
 	maxAge := time.Duration(conf.Log.MaxAge)
@@ -60,22 +57,31 @@ func Init() {
 	fmt.Printf("test [%s]", fileName)
 
 	allHook := lfshook.NewHook(lfshook.WriterMap{
-		log.DebugLevel: GetLogWriter(logPath, fileName, maxAge, rotateTime),
-		log.InfoLevel:  GetLogWriter(logPath, fileName, maxAge, rotateTime),
-		log.WarnLevel:  GetLogWriter(logPath, fileName, maxAge, rotateTime),
-		log.ErrorLevel: GetLogWriter(logPath, fileName, maxAge, rotateTime),
-		log.FatalLevel: GetLogWriter(logPath, fileName, maxAge, rotateTime),
-		log.PanicLevel: GetLogWriter(logPath, fileName, maxAge, rotateTime),
-	}, &log.TextFormatter{ForceColors: true})
-	log.AddHook(allHook)
+		logrus.DebugLevel: GetLogWriter(logPath, fileName, maxAge, rotateTime),
+		logrus.InfoLevel:  GetLogWriter(logPath, fileName, maxAge, rotateTime),
+		logrus.WarnLevel:  GetLogWriter(logPath, fileName, maxAge, rotateTime),
+		logrus.ErrorLevel: GetLogWriter(logPath, fileName, maxAge, rotateTime),
+		logrus.FatalLevel: GetLogWriter(logPath, fileName, maxAge, rotateTime),
+		logrus.PanicLevel: GetLogWriter(logPath, fileName, maxAge, rotateTime),
+	}, &logrus.TextFormatter{ForceColors: true})
 
 	wfHook := lfshook.NewHook(lfshook.WriterMap{
-		log.WarnLevel:  GetLogWriter(logPath, fileName+".wf", maxAge, rotateTime),
-		log.ErrorLevel: GetLogWriter(logPath, fileName+".wf", maxAge, rotateTime),
-		log.FatalLevel: GetLogWriter(logPath, fileName+".wf", maxAge, rotateTime),
-		log.PanicLevel: GetLogWriter(logPath, fileName+".wf", maxAge, rotateTime),
-	}, &log.TextFormatter{ForceColors: true})
-	log.AddHook(wfHook)
+		logrus.WarnLevel:  GetLogWriter(logPath, fileName+".wf", maxAge, rotateTime),
+		logrus.ErrorLevel: GetLogWriter(logPath, fileName+".wf", maxAge, rotateTime),
+		logrus.FatalLevel: GetLogWriter(logPath, fileName+".wf", maxAge, rotateTime),
+		logrus.PanicLevel: GetLogWriter(logPath, fileName+".wf", maxAge, rotateTime),
+	}, &logrus.TextFormatter{ForceColors: true})
+
+	filenameHook := NewHook()
+	filenameHook.Field = "line"
+
+	logger.AddHook(allHook)
+	logger.AddHook(wfHook)
+	logger.AddHook(filenameHook)
+}
+
+func GetRequestLogger(requestId string) *logrus.Entry {
+	return logger.WithField("reqId", requestId)
 }
 
 func GetLogWriter(logPath string, logType string, maxAge time.Duration, rotateTime time.Duration) io.Writer {

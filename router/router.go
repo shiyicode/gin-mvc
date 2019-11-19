@@ -1,10 +1,10 @@
 package router
 
 import (
-	"log"
 	"time"
 
 	"github.com/chuxinplan/gin-mvc/app/controller"
+	"github.com/chuxinplan/gin-mvc/common/logger"
 	"github.com/chuxinplan/gin-mvc/router/middleware"
 	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
@@ -46,6 +46,6 @@ func Run() {
 	server := endless.NewServer(":8080", router)
 	err := server.ListenAndServe()
 	if err != nil {
-		log.Printf("server err: %v", err)
+		logger.Printf("server err: %v", err)
 	}
 }

@@ -1,13 +1,15 @@
 package service
 
-import (
-	"github.com/chuxinplan/gin-mvc/app/controller"
-)
-
 type GroupService struct {
-	userId int64
+	baseService
 }
 
-func (userService UserService) GetAllGroup(param *controller.LoginParam) {
+func NewGroupService(username string, requestId string) GroupService {
+	return GroupService{
+		baseService: newBaseService(username, requestId),
+	}
+}
+
+func (groupService GroupService) GetAllGroup(param *LoginParam) {
 
 }
