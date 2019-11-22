@@ -25,7 +25,10 @@ type payLoad struct {
 func EncodeToken(username string, userId int64) (string,error) {
 	cfg := config.Get()
 	header := &header{cfg.Jwt.EncodeMethod, "JWT"}
-	validTime, _ := time.ParseDuration(cfg.Jwt.MaxEffectiveTime)
+	validTime, err := time.ParseDuration(cfg.Jwt.MaxEffectiveTime)
+	if err!=nil{
+		return "",err
+	}
 	endTime := time.Now().Add(validTime)
 	payLoad := &payLoad{
 		EndTime:  endTime,
@@ -55,6 +58,15 @@ func EncodeToken(username string, userId int64) (string,error) {
 }
 
 func DecodeToken(token string) (bool, *payLoad) {
+	data, err := base64.URLEncoding.DecodeString(token)
+	if err != nil {
+		return false, nil
+	}
+	token = string(data)
+	if token == "" {
+		return false, nil
+	}
+
 	strs := strings.Split(token, ".")
 	if len(strs) != 3 {
 		return false, nil

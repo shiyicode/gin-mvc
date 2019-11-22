@@ -1,8 +1,6 @@
 package middleware
 
 import (
-	"encoding/base64"
-	"errors"
 	"net/http"
 
 	"github.com/chuxinplan/gin-mvc/common/auth"
@@ -11,7 +9,11 @@ import (
 
 func GetUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
-
+		token, _ := c.Cookie("token")
+		isLogin,payLoad := auth.DecodeToken(token)
+		if isLogin{
+			c.Set("userId", payLoad.UserId)
+		}
 		c.Next()
 	}
 }
@@ -19,32 +21,13 @@ func GetUser() gin.HandlerFunc {
 func MustGetUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token, _ := c.Cookie("token")
-		userId, err := checkLogin(token)
-		if err != nil {
+		isLogin,payLoad := auth.DecodeToken(token)
+		if !isLogin {
 			c.JSON(http.StatusForbidden, "权限检验失败，请重新登录!")
 			c.Abort()
+			return
 		}
-		c.Set("userId", userId)
+		c.Set("userId", payLoad.UserId)
 		c.Next()
 	}
-}
-
-//input token，get decode userId
-func checkLogin(token string) (int64, error) {
-	data, err := base64.URLEncoding.DecodeString(token)
-	if err != nil {
-		return 0, err
-	}
-
-	token = string(data)
-	if token == "" {
-		return 0, errors.New("token串为空!")
-	}
-
-	isLogin,payLoad := auth.DecodeToken(token)
-	if isLogin{
-		return payLoad.UserId,nil
-	}
-
-	return 0, errors.New("用户会话有误或已失效！")
 }
