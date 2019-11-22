@@ -48,7 +48,7 @@ func getUsername(c *gin.Context) string {
 }
 
 func getRequestId(c *gin.Context) string {
-	requestId, exists := c.Get("requestId")
+	requestId, exists := c.Get("X-Request-Id")
 	if exists == false {
 		return ""
 	}

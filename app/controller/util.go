@@ -1,14 +1,15 @@
 package controller
 
 import (
+	"github.com/chuxinplan/gin-mvc/app/service"
 	"github.com/gin-gonic/gin"
-
-	log "github.com/sirupsen/logrus"
 )
 
 func HttpHandlerPing(c *gin.Context) {
-	log.Infof("get pong\n")
-	log.Warningf("get pong\n")
+	userService := service.NewUserService(getUsername(c), getRequestId(c))
+
+	userService.Logger.Infof("get pong")
+	userService.Logger.Warningf("get pong")
 	c.JSON(200, "ok")
 
 	// token, err := managers.AccountLogin(account.Email, account.Password)
