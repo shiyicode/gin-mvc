@@ -25,7 +25,7 @@ func Init() {
 		v1Router.POST("register", controller.HttpHandlerRegister)
 	}
 
-	authV1Router := router.Group("v1/auth")
+	authV1Router := router.Group("v1/auth").Use(middleware.MustGetUser("/v1/auth"))
 	{
 		authV1Router.POST("login", controller.HttpHandlerLogin)
 	}

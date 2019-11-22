@@ -1,7 +1,12 @@
 package controller
 
 import (
+	"encoding/base64"
+	"net/http"
+
+	"github.com/chuxinplan/gin-mvc/app/model"
 	"github.com/chuxinplan/gin-mvc/app/service"
+	"github.com/chuxinplan/gin-mvc/common/auth"
 	"github.com/chuxinplan/gin-mvc/common/errors"
 	"github.com/gin-gonic/gin"
 )
@@ -17,21 +22,22 @@ func HttpHandlerLogin(c *gin.Context) {
 
 	userService := service.NewUserService(getUsername(c), getRequestId(c))
 	ret := userService.Login(param)
-	c.JSON(success(ret))
 
-	// token, err := managers.AccountLogin(account.Email, account.Password)
-	// if err != nil {
-	// 	c.JSON(http.StatusOK, base.Fail(err.Error()))
-	// 	return
-	// }
-	// cookie := &http.Cookie{
-	// 	Name:     "token",
-	// 	Value:    base64.StdEncoding.EncodeToString([]byte(token)),
-	// 	Path:     "/",
-	// 	HttpOnly: true,
-	// }
-	//
-	// http.SetCookie(c.Writer, cookie)
+	userMess := &model.User{
+		Id:       1,
+		Username: "test",
+	}
+	token := auth.GetToken(userMess)
+	cookie := &http.Cookie{
+		Name:     "token",
+		Value:    base64.StdEncoding.EncodeToString([]byte(token)),
+		Path:     "/",
+		HttpOnly: true,
+	}
+
+	http.SetCookie(c.Writer, cookie)
+
+	c.JSON(success(ret))
 }
 
 func HttpHandlerRegister(c *gin.Context) {
