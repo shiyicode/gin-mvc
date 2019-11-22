@@ -1,4 +1,4 @@
-package auth
+package middleware
 
 import (
 	"crypto/hmac"
@@ -17,19 +17,45 @@ import (
 //	Signature string
 //}
 
-type HeaderData struct {
+type headerData struct {
 	EncodeStyle string //加密方式
 	Type        string //Token的类型
 }
 
-type PayLoadData struct {
+type payLoadData struct {
 	EndTime string //过期时间
 	Name    string //用户名
 	Id      string //用户Id
 }
 
-func GetPayLoad(token string) *PayLoadData {
-	var payLoad *PayLoadData
+func GetToken(user *model.User) string {
+	cfg := config.Get()
+	header := &headerData{cfg.Jwt.EncodeMethod, "JWT"}
+	endTime := strconv.FormatInt(time.Now().UnixNano()/1000000+cfg.Jwt.MaxEffectiveTime*86400, 10)
+	payLoad := &payLoadData{endTime, user.Username, strconv.FormatInt(user.Id, 10)}
+
+	str := header.EncodeStyle + "." + header.Type
+	Header := base64.StdEncoding.EncodeToString([]byte(str))
+
+	str = payLoad.EndTime + "." + payLoad.Name + "." + payLoad.Id
+	PayLoad := base64.StdEncoding.EncodeToString([]byte(str))
+
+	Signature := computeHmac256(Header+"."+PayLoad, getSecret(payLoad))
+
+	return Header + "." + PayLoad + "." + Signature
+}
+
+func checkToken(token string) bool {
+	strs := strings.Split(token, ".")
+	expect := computeHmac256(strs[0]+"."+strs[1], getSecret(getPayLoad(token)))
+	if strs[2] == expect {
+		return true
+	}
+	return false
+}
+
+func getPayLoad(token string) *payLoadData {
+	var payLoad *payLoadData
 	strs := strings.Split(token, ".")
 	if len(strs) == 3 {
 		pay, err := base64.URLEncoding.DecodeString(strs[1])
@@ -38,45 +64,19 @@ func GetPayLoad(token string) *PayLoadData {
 		}
 		pays := strings.Split(string(pay), ".")
 		if len(pays) == 3 {
-			payLoad = &PayLoadData{pays[0], pays[1], pays[2]}
+			payLoad = &payLoadData{pays[0], pays[1], pays[2]}
 		}
 	}
 	return payLoad
 }
 
-func GetToken(user *model.User) string {
-	cfg := config.Get()
-	header := &HeaderData{cfg.Jwt.EncodeMethod, "JWT"}
-	endTime := strconv.FormatInt(time.Now().UnixNano()/1000000+cfg.Jwt.MaxEffectiveTime*86400, 10)
-	payLoad := &PayLoadData{endTime, user.Username, strconv.FormatInt(user.Id, 10)}
-
-	str := header.EncodeStyle + "." + header.Type
-	Header := base64.StdEncoding.EncodeToString([]byte(str))
-
-	str = payLoad.EndTime + "." + payLoad.Name + "." + payLoad.Id
-	PayLoad := base64.StdEncoding.EncodeToString([]byte(str))
-
-	Signature := ComputeHmac256(Header+"."+PayLoad, GetSecret(payLoad))
-
-	return Header + "." + PayLoad + "." + Signature
-}
-
-func CheckToken(token string) bool {
-	strs := strings.Split(token, ".")
-	expect := ComputeHmac256(strs[0]+"."+strs[1], GetSecret(GetPayLoad(token)))
-	if strs[2] == expect {
-		return true
-	}
-	return false
-}
-
-func GetSecret(payLoad *PayLoadData) string {
-	return ComputeHmac256(payLoad.EndTime+"."+payLoad.Name, "a1b1c2")
-}
-
-func ComputeHmac256(message string, secret string) string {
+func computeHmac256(message string, secret string) string {
 	key := []byte(secret)
 	h := hmac.New(sha256.New, key)
 	h.Write([]byte(message))
 	return base64.StdEncoding.EncodeToString(h.Sum(nil))
+}
+
+func getSecret(payLoad *payLoadData) string {
+	return computeHmac256(payLoad.EndTime+"."+payLoad.Name, "a1b1c2")
 }

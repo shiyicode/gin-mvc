@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/chuxinplan/gin-mvc/app/controller"
-	"github.com/chuxinplan/gin-mvc/common/auth"
 	"github.com/chuxinplan/gin-mvc/common/logger"
 	"github.com/chuxinplan/gin-mvc/router/middleware"
 	"github.com/fvbock/endless"
@@ -26,7 +25,7 @@ func Init() {
 		v1Router.POST("register", controller.HttpHandlerRegister)
 	}
 
-	authV1Router := router.Group("v1/auth").Use(auth.Check())
+	authV1Router := router.Group("v1/auth").Use(middleware.MustGetUser("/v1/auth"))
 	{
 		authV1Router.POST("login", controller.HttpHandlerLogin)
 	}
