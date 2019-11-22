@@ -20,4 +20,4 @@ webAddr = "root:123456@tcp(localhost:3306)/fightcoder?charset=utf8&loc=Asia%2FSh
 
 [jwt]
 encodeMethod = "HS256" # [HS256, HS384, HS512]
-maxEffectiveTime = 3  # 最大存活时间:天
+maxEffectiveTime = "72h"  # 最大存活时间:天

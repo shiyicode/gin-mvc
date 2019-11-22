@@ -41,7 +41,7 @@ type MysqlConfig struct {
 
 type JwtConfig struct {
 	EncodeMethod     string `toml:"encodeMethod"`
-	MaxEffectiveTime int64  `toml:"maxEffectiveTime"`
+	MaxEffectiveTime string  `toml:"maxEffectiveTime"`
 }
 
 var (

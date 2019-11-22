@@ -4,7 +4,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
-	"strconv"
+	"encoding/json"
 	"strings"
 	"time"
 
@@ -22,25 +22,36 @@ type payLoad struct {
 	UserId   int64     // 用户Id
 }
 
-func EncodeToken(username string, userId int64) string {
+func EncodeToken(username string, userId int64) (string,error) {
 	cfg := config.Get()
 	header := &header{cfg.Jwt.EncodeMethod, "JWT"}
-	endTime := time.Now().UnixNano()/1000000 + cfg.Jwt.MaxEffectiveTime*86400 // time转换的优雅一些
+	validTime, _ := time.ParseDuration(cfg.Jwt.MaxEffectiveTime)
+	endTime := time.Now().Add(validTime)
 	payLoad := &payLoad{
 		EndTime:  endTime,
 		Username: username,
 		UserId:   userId,
 	}
 
-	str := header.EncodeStyle + "." + header.Type
-	Header := base64.StdEncoding.EncodeToString([]byte(str))
+	headerStr, err := json.Marshal(header)
+	if err != nil{
+		return "",err
+	}
+	Header := base64.StdEncoding.EncodeToString(headerStr)
 
-	str = payLoad.EndTime.String() + "." + payLoad.Username + "." + strconv.FormatInt(payLoad.UserId, 10)
-	PayLoad := base64.StdEncoding.EncodeToString([]byte(str))
+	payLoadStr, err := json.Marshal(payLoad)
+	if err != nil{
+		return "",err
+	}
+	PayLoad := base64.StdEncoding.EncodeToString(payLoadStr)
 
-	Signature := computeHmac256(Header+"."+PayLoad, getSecret(payLoad))
+	secretStr,err := getSecret(payLoad)
+	if err!=nil{
+		return "",err
+	}
+	Signature := computeHmac256(Header+"."+PayLoad, secretStr)
 
-	return Header + "." + PayLoad + "." + Signature
+	return Header + "." + PayLoad + "." + Signature,nil
 }
 
 func DecodeToken(token string) (bool, *payLoad) {
@@ -52,9 +63,16 @@ func DecodeToken(token string) (bool, *payLoad) {
 	if err != nil {
 		return false, nil
 	}
-	payLoad := &payLoad{} // 将payStr转为pay结构体 json!!!
+	payLoad := &payLoad{}
+	if err := json.Unmarshal(payStr, payLoad);err!=nil{
+		return false, nil
+	}
 
-	expect := computeHmac256(strs[0]+"."+strs[1], getSecret(payLoad))
+	secretStr,err := getSecret(payLoad)
+	if err!=nil{
+		return false, nil
+	}
+	expect := computeHmac256(strs[0]+"."+strs[1], secretStr)
 	if strs[2] == expect && payLoad.EndTime.After(time.Now()) {
 		return true, payLoad
 	}
@@ -68,7 +86,10 @@ func computeHmac256(message string, secret string) string {
 	return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }
 
-func getSecret(payLoad *payLoad) string {
-	payStr := "" // json序列化
-	return computeHmac256(payStr, "a1b1c2")
+func getSecret(payLoad *payLoad) (string,error) {
+	payStr, err := json.Marshal(payLoad)
+	if err != nil{
+		return "",err
+	}
+	return computeHmac256(string(payStr), "a1b1c2"),nil
 }
