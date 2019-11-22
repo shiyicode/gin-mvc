@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -16,7 +15,6 @@ import (
 	"github.com/chuxinplan/gin-mvc/common/config"
 
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
-	"github.com/rifflock/lfshook"
 	"github.com/sirupsen/logrus"
 )
 
@@ -46,38 +44,21 @@ func Init() {
 	} else {
 		logger.SetLevel(level)
 	}
-	//log.SetReportCaller(true)
 
-	logger.SetFormatter(&logrus.TextFormatter{ForceColors: true})
+	logger.SetReportCaller(true)
 
-	logPath := conf.Log.Path
-	maxAge := time.Duration(conf.Log.MaxAge)
-	rotateTime := time.Duration(conf.Log.RotateTime)
-	fileName := "web.log"
-	fmt.Printf("test [%s]", fileName)
+	logger.SetFormatter(&logrus.TextFormatter{
+		ForceColors:     true,
+		FullTimestamp:   true,
+		TimestampFormat: "2006-01-02 15:04:05",
+	})
 
-	allHook := lfshook.NewHook(lfshook.WriterMap{
-		logrus.DebugLevel: GetLogWriter(logPath, fileName, maxAge, rotateTime),
-		logrus.InfoLevel:  GetLogWriter(logPath, fileName, maxAge, rotateTime),
-		logrus.WarnLevel:  GetLogWriter(logPath, fileName, maxAge, rotateTime),
-		logrus.ErrorLevel: GetLogWriter(logPath, fileName, maxAge, rotateTime),
-		logrus.FatalLevel: GetLogWriter(logPath, fileName, maxAge, rotateTime),
-		logrus.PanicLevel: GetLogWriter(logPath, fileName, maxAge, rotateTime),
-	}, &logrus.TextFormatter{ForceColors: true})
+	formatter := &Formatter{}
+	//logger.SetFormatter(formatter)
 
-	wfHook := lfshook.NewHook(lfshook.WriterMap{
-		logrus.WarnLevel:  GetLogWriter(logPath, fileName+".wf", maxAge, rotateTime),
-		logrus.ErrorLevel: GetLogWriter(logPath, fileName+".wf", maxAge, rotateTime),
-		logrus.FatalLevel: GetLogWriter(logPath, fileName+".wf", maxAge, rotateTime),
-		logrus.PanicLevel: GetLogWriter(logPath, fileName+".wf", maxAge, rotateTime),
-	}, &logrus.TextFormatter{ForceColors: true})
-
-	filenameHook := NewHook()
-	filenameHook.Field = "line"
-
-	logger.AddHook(allHook)
-	logger.AddHook(wfHook)
-	logger.AddHook(filenameHook)
+	logger.AddHook(getAllHook(conf, formatter))
+	logger.AddHook(getWfHook(conf, formatter))
+	//logger.AddHook(getFilenameHook())
 }
 
 func GetRequestLogger(requestId string) *logrus.Entry {

@@ -7,6 +7,7 @@ import (
 	"github.com/chuxinplan/gin-mvc/common/config"
 	"github.com/chuxinplan/gin-mvc/common/logger"
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 )
 
 func Logger() gin.HandlerFunc {
@@ -17,24 +18,33 @@ func Logger() gin.HandlerFunc {
 		rotationTime := time.Duration(confInfo.Log.RotateTime)
 		writer := logger.GetLogWriter(logPath, "access.log", maxAge, rotationTime)
 
-		loggerConf := gin.LoggerConfig{
-			Output: writer,
-			//SkipPaths: []string{"/test"},
-			Formatter: func(params gin.LogFormatterParams) string {
-				return fmt.Sprintf("%s - [%s] \"%s %s %s %d %s \"%s\" %s\"\n",
-					params.ClientIP,
-					params.TimeStamp.Format(time.RFC1123),
-					params.Method,
-					params.Path,
-					params.Request.Proto,
-					params.StatusCode,
-					params.Latency,
-					params.Request.UserAgent(),
-					params.ErrorMessage,
-				)
-			},
+		return func(ctx *gin.Context) {
+			requestId := ctx.Request.Header.Get("X-Request-Id")
+
+			if requestId == "" {
+				requestId = uuid.NewV4().String()
+			}
+			ctx.Set("X-Request-Id", requestId)
+			ctx.Header("X-Request-Id", requestId)
+
+			startTime := time.Now()
+			ctx.Next()
+			endTime := time.Now()
+			latencyTime := endTime.Sub(startTime)
+
+			// 日志格式
+			fmt.Fprintf(writer, "%15s - %s %s \"%s %s %s %3d %13v \"%s\n",
+				ctx.ClientIP(),
+				startTime.Format("2006-01-02 15:04:05"),
+				requestId,
+				ctx.Request.Method,
+				ctx.Request.RequestURI,
+				ctx.Request.Proto,
+				ctx.Writer.Status(),
+				latencyTime,
+				ctx.Request.UserAgent(),
+			)
 		}
-		return gin.LoggerWithConfig(loggerConf)
 	}
 	return gin.Logger()
 }
