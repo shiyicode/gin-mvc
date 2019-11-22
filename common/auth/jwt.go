@@ -22,12 +22,12 @@ type payLoad struct {
 	UserId   int64     // 用户Id
 }
 
-func EncodeToken(username string, userId int64) (string,error) {
+func EncodeToken(username string, userId int64) (string, error) {
 	cfg := config.Get()
 	header := &header{cfg.Jwt.EncodeMethod, "JWT"}
 	validTime, err := time.ParseDuration(cfg.Jwt.MaxEffectiveTime)
-	if err!=nil{
-		return "",err
+	if err != nil {
+		return "", err
 	}
 	endTime := time.Now().Add(validTime)
 	payLoad := &payLoad{
@@ -37,24 +37,25 @@ func EncodeToken(username string, userId int64) (string,error) {
 	}
 
 	headerStr, err := json.Marshal(header)
-	if err != nil{
-		return "",err
+	if err != nil {
+		return "", err
 	}
 	Header := base64.StdEncoding.EncodeToString(headerStr)
 
 	payLoadStr, err := json.Marshal(payLoad)
-	if err != nil{
-		return "",err
+	if err != nil {
+		return "", err
 	}
 	PayLoad := base64.StdEncoding.EncodeToString(payLoadStr)
 
-	secretStr,err := getSecret(payLoad)
-	if err!=nil{
-		return "",err
+	secretStr, err := getSecret(payLoad)
+	if err != nil {
+		return "", err
 	}
 	Signature := computeHmac256(Header+"."+PayLoad, secretStr)
 
-	return Header + "." + PayLoad + "." + Signature,nil
+	token := base64.StdEncoding.EncodeToString([]byte(Header + "." + PayLoad + "." + Signature))
+	return token, nil
 }
 
 func DecodeToken(token string) (bool, *payLoad) {
@@ -76,12 +77,12 @@ func DecodeToken(token string) (bool, *payLoad) {
 		return false, nil
 	}
 	payLoad := &payLoad{}
-	if err := json.Unmarshal(payStr, payLoad);err!=nil{
+	if err := json.Unmarshal(payStr, payLoad); err != nil {
 		return false, nil
 	}
 
-	secretStr,err := getSecret(payLoad)
-	if err!=nil{
+	secretStr, err := getSecret(payLoad)
+	if err != nil {
 		return false, nil
 	}
 	expect := computeHmac256(strs[0]+"."+strs[1], secretStr)
@@ -98,10 +99,10 @@ func computeHmac256(message string, secret string) string {
 	return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }
 
-func getSecret(payLoad *payLoad) (string,error) {
+func getSecret(payLoad *payLoad) (string, error) {
 	payStr, err := json.Marshal(payLoad)
-	if err != nil{
-		return "",err
+	if err != nil {
+		return "", err
 	}
-	return computeHmac256(string(payStr), "a1b1c2"),nil
+	return computeHmac256(string(payStr), "a1b1c2"), nil
 }

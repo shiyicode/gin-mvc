@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"encoding/base64"
 	"net/http"
 
 	"github.com/chuxinplan/gin-mvc/app/service"
@@ -22,10 +21,13 @@ func HttpHandlerLogin(c *gin.Context) {
 	userService := service.NewUserService(getUsername(c), getRequestId(c))
 	ret := userService.Login(param)
 
-	token,_ := auth.EncodeToken("test",1)
+	token, err := auth.EncodeToken("test", 1)
+	if err != nil {
+		panic(err)
+	}
 	cookie := &http.Cookie{
 		Name:     "token",
-		Value:    base64.StdEncoding.EncodeToString([]byte(token)),
+		Value:    token,
 		Path:     "/",
 		HttpOnly: true,
 	}

@@ -19,7 +19,7 @@ func Init() {
 	router.Use(middleware.MaxAllowed(10))
 	router.Use(middleware.Logger())
 
-	v1Router := router.Group("v1/api")
+	v1Router := router.Group("v1/api").Use(middleware.GetUser())
 	{
 		v1Router.POST("login", controller.HttpHandlerLogin)
 		v1Router.POST("register", controller.HttpHandlerRegister)
