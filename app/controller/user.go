@@ -6,8 +6,8 @@ import (
 
 	"github.com/chuxinplan/gin-mvc/app/model"
 	"github.com/chuxinplan/gin-mvc/app/service"
+	"github.com/chuxinplan/gin-mvc/common/auth"
 	"github.com/chuxinplan/gin-mvc/common/errors"
-	"github.com/chuxinplan/gin-mvc/router/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,10 +24,10 @@ func HttpHandlerLogin(c *gin.Context) {
 	ret := userService.Login(param)
 
 	userMess := &model.User{
-		Id :1,
-		Username:"test",
+		Id:       1,
+		Username: "test",
 	}
-	token := middleware.GetToken(userMess)
+	token := auth.GetToken(userMess)
 	cookie := &http.Cookie{
 		Name:     "token",
 		Value:    base64.StdEncoding.EncodeToString([]byte(token)),
