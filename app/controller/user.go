@@ -15,7 +15,7 @@ import (
 func HttpHandlerLogin(c *gin.Context) {
 	param := new(service.LoginParam)
 	if err := c.ShouldBind(param); err != nil {
-		panic(errors.New(errors.ErrValidation, err.Error()))
+		panic(errors.Warp(errors.ErrValidation, err.Error()))
 	}
 
 	userService := service.NewUserService(getUsername(c), getRequestId(c))
@@ -23,7 +23,7 @@ func HttpHandlerLogin(c *gin.Context) {
 
 	token, err := auth.EncodeToken("test", 1)
 	if err != nil {
-		panic(errors.New(errors.ErrGetTokenFail, err.Error()))
+		panic(errors.Warp(errors.ErrGetTokenFail, err.Error()))
 	}
 	cookie := &http.Cookie{
 		Name:     "token",

@@ -23,7 +23,7 @@ func MustGetUser() gin.HandlerFunc {
 		token, _ := c.Cookie("token")
 		isLogin,payLoad := auth.DecodeToken(token)
 		if !isLogin {
-			resErr := errors.New(errors.ErrValidation, "")
+			resErr := errors.Warp(errors.ErrValidation, "")
 			httpCode,respData := controller.Failure(resErr)
 			c.JSON(httpCode, respData)
 			c.Abort()

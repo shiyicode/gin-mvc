@@ -38,10 +38,3 @@ func getWfHook(conf config.Config, formatter logrus.Formatter) *lfshook.LfsHook 
 		logrus.PanicLevel: GetLogWriter(logPath, fileName+".wf", maxAge, rotateTime),
 	}, formatter)
 }
-
-func getFilenameHook() *Hook {
-	filenameHook := NewHook()
-	filenameHook.Field = "line"
-
-	return filenameHook
-}

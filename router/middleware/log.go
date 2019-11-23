@@ -33,7 +33,7 @@ func Logger() gin.HandlerFunc {
 			latencyTime := endTime.Sub(startTime)
 
 			// 日志格式
-			fmt.Fprintf(writer, "%15s - %s %s \"%s %s %s %3d %13v \"%s\n",
+			if _, err := fmt.Fprintf(writer, "%15s - %s %s \"%s %s %s %3d %13v \"%s\n",
 				ctx.ClientIP(),
 				startTime.Format("2006-01-02 15:04:05"),
 				requestId,
@@ -43,7 +43,9 @@ func Logger() gin.HandlerFunc {
 				ctx.Writer.Status(),
 				latencyTime,
 				ctx.Request.UserAgent(),
-			)
+			); err != nil {
+				logger.Warnf("write access log fail.reqId[%s] msg[%s]", requestId, err.Error())
+			}
 		}
 	}
 	return gin.Logger()
