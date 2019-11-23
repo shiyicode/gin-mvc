@@ -47,18 +47,11 @@ func Init() {
 
 	logger.SetReportCaller(true)
 
-	logger.SetFormatter(&logrus.TextFormatter{
-		ForceColors:     true,
-		FullTimestamp:   true,
-		TimestampFormat: "2006-01-02 15:04:05",
-	})
-
 	formatter := &Formatter{}
-	//logger.SetFormatter(formatter)
+	logger.SetFormatter(formatter)
 
 	logger.AddHook(getAllHook(conf, formatter))
 	logger.AddHook(getWfHook(conf, formatter))
-	//logger.AddHook(getFilenameHook())
 }
 
 func GetRequestLogger(requestId string) *logrus.Entry {
