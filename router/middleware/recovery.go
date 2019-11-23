@@ -14,10 +14,12 @@ func Recovery() gin.HandlerFunc {
 		defer func() {
 			if err := recover(); err != nil {
 				requestId, _ := c.Get("X-Request-Id")
+
 				if err, ok := err.(*errors.Err); ok {
 					httpCode, respData := controller.Failure(err)
 					c.JSON(httpCode, respData)
 					errInfo := fmt.Sprintf("Err - errno: %d, message: %s, error: %s", err.Errno.Code, err.Errno.Message, err.InnerMsg)
+
 					logger.Warningf("[%v] ErrorInfo:%s", requestId, errInfo)
 					return
 				}

@@ -1,15 +1,19 @@
 package service
 
+import "github.com/go-xorm/xorm"
+
 type GroupService struct {
 	baseService
+	Username string
 }
 
-func NewGroupService(username string, requestId string) GroupService {
+func NewGroupService(requestId string, db *xorm.Session, username string) GroupService {
 	return GroupService{
-		baseService: newBaseService(username, requestId),
+		baseService: newBaseService(requestId, db),
+		Username:    username,
 	}
 }
 
-func (groupService GroupService) GetAllGroup(param *LoginParam) {
+func (groupService GroupService) GetAllGroupByUser() {
 
 }

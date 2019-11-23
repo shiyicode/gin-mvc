@@ -2,19 +2,18 @@ package service
 
 import (
 	"github.com/chuxinplan/gin-mvc/common/logger"
+	"github.com/go-xorm/xorm"
 	"github.com/sirupsen/logrus"
 )
 
 type baseService struct {
-	Username string
-	Logger   *logrus.Entry
-	DB       interface{} // TODO
+	Logger *logrus.Entry
+	DB     *xorm.Session
 }
 
-func newBaseService(username string, requestId string) baseService {
+func newBaseService(requestId string, db *xorm.Session) baseService {
 	return baseService{
-		Username: username,
-		Logger:   logger.GetRequestLogger(requestId),
-		DB:       nil,
+		Logger: logger.GetRequestLogger(requestId),
+		DB:     db,
 	}
 }

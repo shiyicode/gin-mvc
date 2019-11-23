@@ -3,6 +3,8 @@ package router
 import (
 	"time"
 
+	"github.com/chuxinplan/gin-mvc/common/config"
+
 	"github.com/chuxinplan/gin-mvc/app/controller"
 	"github.com/chuxinplan/gin-mvc/common/logger"
 	"github.com/chuxinplan/gin-mvc/router/middleware"
@@ -18,6 +20,7 @@ func Init() {
 
 	router.Use(middleware.MaxAllowed(10))
 	router.Use(middleware.Logger())
+	router.Use(middleware.GetDB())
 	router.Use(middleware.Recovery())
 
 	v1Router := router.Group("v1/api").Use(middleware.GetUser())
@@ -40,10 +43,12 @@ func Init() {
 
 // Run start http server
 func Run() {
-	endless.DefaultReadTimeOut = 10 * time.Second
-	endless.DefaultWriteTimeOut = 10 * time.Second
-	endless.DefaultMaxHeaderBytes = 1 << 20
-	endless.DefaultHammerTime = 10 * time.Second
+	conf := config.Get()
+
+	endless.DefaultReadTimeOut = conf.Endless.ReadTimeOut * time.Second
+	endless.DefaultWriteTimeOut = conf.Endless.WriteTimeOut * time.Second
+	endless.DefaultMaxHeaderBytes = 1 << conf.Endless.MaxHeaderBytes
+	endless.DefaultHammerTime = conf.Endless.HammerTime * time.Second
 
 	server := endless.NewServer(":8080", router)
 	err := server.ListenAndServe()

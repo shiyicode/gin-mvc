@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/BurntSushi/toml"
 	"github.com/pkg/errors"
@@ -11,10 +12,11 @@ import (
 )
 
 type Config struct {
-	Run   RunConfig   `toml:"run"`
-	Log   LogConfig   `toml:"log"`
-	Mysql MysqlConfig `toml:"mysql"`
-	Jwt   JwtConfig   `toml:"jwt"`
+	Run     RunConfig     `toml:"run"`
+	Log     LogConfig     `toml:"log"`
+	Mysql   MysqlConfig   `toml:"mysql"`
+	Jwt     JwtConfig     `toml:"jwt"`
+	Endless EndlessConfig `toml:"endless"`
 }
 
 type RunConfig struct {
@@ -42,6 +44,13 @@ type MysqlConfig struct {
 type JwtConfig struct {
 	EncodeMethod     string `toml:"encodeMethod"`
 	MaxEffectiveTime string `toml:"maxEffectiveTime"`
+}
+
+type EndlessConfig struct {
+	ReadTimeOut    time.Duration `toml:"readTimeOut"`
+	WriteTimeOut   time.Duration `toml:"writeTimeOut"`
+	MaxHeaderBytes int           `toml:"maxHeaderBytes"`
+	HammerTime     time.Duration `toml:"hammerTime"`
 }
 
 var (

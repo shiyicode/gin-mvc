@@ -18,7 +18,7 @@ func HttpHandlerLogin(c *gin.Context) {
 		panic(errors.Warp(errors.ErrValidation, err.Error()))
 	}
 
-	userService := service.NewUserService(getUsername(c), getRequestId(c))
+	userService := service.NewUserService(getRequestId(c), getDBSession(c))
 	ret := userService.Login(param)
 
 	token, err := auth.EncodeToken("test", 1)
@@ -31,7 +31,6 @@ func HttpHandlerLogin(c *gin.Context) {
 		Path:     "/",
 		HttpOnly: true,
 	}
-
 	http.SetCookie(c.Writer, cookie)
 
 	c.JSON(Success(ret))

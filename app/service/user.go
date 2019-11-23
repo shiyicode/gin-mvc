@@ -1,5 +1,7 @@
 package service
 
+import "github.com/go-xorm/xorm"
+
 type UserService struct {
 	baseService
 }
@@ -16,9 +18,9 @@ type LoginParam struct {
 	Password string `form:"password" binding:"required"`
 }
 
-func NewUserService(username string, requestId string) UserService {
+func NewUserService(requestId string, db *xorm.Session) UserService {
 	return UserService{
-		baseService: newBaseService(username, requestId),
+		baseService: newBaseService(requestId, db),
 	}
 }
 

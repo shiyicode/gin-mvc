@@ -3,6 +3,8 @@ package controller
 import (
 	"net/http"
 
+	"github.com/go-xorm/xorm"
+
 	"github.com/chuxinplan/gin-mvc/common/errors"
 	"github.com/gin-gonic/gin"
 )
@@ -57,4 +59,16 @@ func getRequestId(c *gin.Context) string {
 		return ""
 	}
 	return reqId
+}
+
+func getDBSession(c *gin.Context) *xorm.Session {
+	DBSession, exists := c.Get("db")
+	if exists == false {
+		return nil
+	}
+	db, ok := DBSession.(*xorm.Session)
+	if !ok {
+		return nil
+	}
+	return db
 }
