@@ -7,10 +7,9 @@ import (
 	"net/http/httputil"
 	"runtime"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/chuxinplan/gin-mvc/app/controller"
 	"github.com/chuxinplan/gin-mvc/common/errors"
+	"github.com/chuxinplan/gin-mvc/common/logger"
 	"github.com/gin-gonic/gin"
 )
 
@@ -25,19 +24,19 @@ func Recovery() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
-				httprequest, _ := httputil.DumpRequest(c.Request, false)
+				httpRequest, _ := httputil.DumpRequest(c.Request, false)
 				stack := stack(3)
-				if err, ok := err.(*errors.Err);ok{
-					httpCode,respData := controller.Failure(err)
-					c.JSON(httpCode,respData)
+				if err, ok := err.(*errors.Err); ok {
+					httpCode, respData := controller.Failure(err)
+					c.JSON(httpCode, respData)
 					errInfo := fmt.Sprintf("Err - errno: %d, message: %s, error: %s", err.Errno.Code, err.Errno.Message, err.InnerMsg)
-					log.Warningf("[Recovery] panic recovered:\n%s\n%s\n%s\n",httprequest,errInfo,string(stack))
+					logger.Warningf("[Recovery] panic recovered:\n%s\n%s\n%s\n", httpRequest, errInfo, string(stack))
 					return
 				}
 				resErr := errors.Warp(errors.InternalServerError, "")
-				httpCode,respData := controller.Failure(resErr)
-				c.JSON(httpCode,respData)
-				log.Warningf("[Recovery] panic recovered:\nUnknown Error:\n%s\nError Mess:%s\n%s\n",httprequest,err,string(stack))
+				httpCode, respData := controller.Failure(resErr)
+				c.JSON(httpCode, respData)
+				logger.Warningf("[Recovery] panic recovered:\nUnknown Error:\n%s\nError Mess:%s\n%s\n", httpRequest, err, string(stack))
 			}
 		}()
 		c.Next()
