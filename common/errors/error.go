@@ -31,5 +31,5 @@ func (err *Err) Code() int {
 }
 
 func (err *Err) Error() string {
-	return fmt.Sprintf("Err - errno: %d, message: %s, error: s%", err.Code, err.Message, err.InnerMsg)
+	return fmt.Sprintf("Err - errno: %d, message: %s", err.Errno.Code, err.Errno.Message)
 }

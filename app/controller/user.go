@@ -23,7 +23,7 @@ func HttpHandlerLogin(c *gin.Context) {
 
 	token, err := auth.EncodeToken("test", 1)
 	if err != nil {
-		panic(err)
+		panic(errors.New(errors.ErrGetTokenFail, err.Error()))
 	}
 	cookie := &http.Cookie{
 		Name:     "token",
@@ -34,9 +34,9 @@ func HttpHandlerLogin(c *gin.Context) {
 
 	http.SetCookie(c.Writer, cookie)
 
-	c.JSON(success(ret))
+	c.JSON(Success(ret))
 }
 
 func HttpHandlerRegister(c *gin.Context) {
-	c.JSON(success())
+	c.JSON(Success())
 }

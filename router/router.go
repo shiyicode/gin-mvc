@@ -18,6 +18,7 @@ func Init() {
 
 	router.Use(middleware.MaxAllowed(10))
 	router.Use(middleware.Logger())
+	router.Use(middleware.Recovery())
 
 	v1Router := router.Group("v1/api").Use(middleware.GetUser())
 	{
@@ -28,6 +29,7 @@ func Init() {
 	authV1Router := router.Group("v1/auth").Use(middleware.MustGetUser())
 	{
 		authV1Router.POST("login", controller.HttpHandlerLogin)
+		authV1Router.GET("ping", controller.HttpHandlerPing)
 	}
 
 	testRouter := router.Group("v1/test")

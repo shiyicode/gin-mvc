@@ -14,7 +14,7 @@ type Result struct {
 }
 
 // data为可选参数
-func success(data ...interface{}) (int, *Result) {
+func Success(data ...interface{}) (int, *Result) {
 	result := &Result{
 		Code:    0,
 		Message: "success",
@@ -26,7 +26,7 @@ func success(data ...interface{}) (int, *Result) {
 	return http.StatusOK, result
 }
 
-func failure(err *errors.Err) (int, *Result) {
+func Failure(err *errors.Err) (int, *Result) {
 	result := &Result{
 		Code:    err.Code(),
 		Message: err.Error(),

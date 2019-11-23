@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"net/http"
-
+	"github.com/chuxinplan/gin-mvc/app/controller"
 	"github.com/chuxinplan/gin-mvc/common/auth"
+	"github.com/chuxinplan/gin-mvc/common/errors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,7 +23,9 @@ func MustGetUser() gin.HandlerFunc {
 		token, _ := c.Cookie("token")
 		isLogin,payLoad := auth.DecodeToken(token)
 		if !isLogin {
-			c.JSON(http.StatusForbidden, "权限检验失败，请重新登录!")
+			resErr := errors.New(errors.ErrValidation, "")
+			httpCode,respData := controller.Failure(resErr)
+			c.JSON(httpCode, respData)
 			c.Abort()
 			return
 		}
