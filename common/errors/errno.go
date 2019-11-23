@@ -21,19 +21,19 @@ var (
 	OK = &Errno{Code: 0, Message: "OK", HTTPCode: http.StatusOK}
 
 	// 系统错误, 前缀为 100
-	InternalServerError = &Errno{Code: 10001, Message: "内部服务器错误", HTTPCode: http.StatusInternalServerError}
-	ErrBind             = &Errno{Code: 10002, Message: "请求参数错误", HTTPCode: http.StatusBadRequest}
-	ErrEncrypt          = &Errno{Code: 10003, Message: "加密用户密码时发生错误"}
+	ErrInternalServer = &Errno{Code: 10001, Message: "内部服务器错误", HTTPCode: http.StatusInternalServerError}
+	ErrParamConvert   = &Errno{Code: 10002, Message: "参数转换时发生错误", HTTPCode: http.StatusInternalServerError}
 
 	// 数据库错误, 前缀为 201
-	ErrDatabase = &Errno{Code: 20100, Message: "数据库错误"}
-	ErrFill     = &Errno{Code: 20101, Message: "从数据库填充 struct 时发生错误"}
+	ErrDatabase = &Errno{Code: 20101, Message: "数据库错误", HTTPCode: http.StatusInternalServerError}
 
 	// 认证错误, 前缀是 202
-	ErrValidation   = &Errno{Code: 20201, Message: "验证失败", HTTPCode: http.StatusForbidden}
-	ErrGetTokenFail = &Errno{Code: 20202, Message: "获取 token 失败", HTTPCode: http.StatusForbidden}
+	ErrBind         = &Errno{Code: 20201, Message: "请求参数错误", HTTPCode: http.StatusBadRequest}
+	ErrValidation   = &Errno{Code: 20202, Message: "验证失败", HTTPCode: http.StatusForbidden}
+	ErrGetTokenFail = &Errno{Code: 20203, Message: "获取 token 失败", HTTPCode: http.StatusForbidden}
 
 	// 用户错误, 前缀为 203
-	ErrUserNotFound      = &Errno{Code: 20301, Message: "用户没找到"}
-	ErrPasswordIncorrect = &Errno{Code: 20302, Message: "密码错误"}
+	ErrUserNotFound      = &Errno{Code: 20301, Message: "用户不存在", HTTPCode: http.StatusBadRequest}
+	ErrPasswordIncorrect = &Errno{Code: 20302, Message: "密码错误", HTTPCode: http.StatusUnauthorized}
+	ErrUserNotLogin      = &Errno{Code: 20303, Message: "用户未登陆", HTTPCode: http.StatusUnauthorized}
 )

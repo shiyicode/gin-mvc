@@ -33,7 +33,7 @@ func Recovery() gin.HandlerFunc {
 					logger.Warningf("[Recovery] panic recovered:\n%s\n%s\n%s\n", httpRequest, errInfo, string(stack))
 					return
 				}
-				resErr := errors.Warp(errors.InternalServerError, "")
+				resErr := errors.Warp(errors.ErrInternalServer, "")
 				httpCode, respData := controller.Failure(resErr)
 				c.JSON(httpCode, respData)
 				logger.Warningf("[Recovery] panic recovered:\nUnknown Error:\n%s\nError Mess:%s\n%s\n", httpRequest, err, string(stack))
