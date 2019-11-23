@@ -41,7 +41,7 @@ type MysqlConfig struct {
 
 type JwtConfig struct {
 	EncodeMethod     string `toml:"encodeMethod"`
-	MaxEffectiveTime string  `toml:"maxEffectiveTime"`
+	MaxEffectiveTime string `toml:"maxEffectiveTime"`
 }
 
 var (
@@ -55,7 +55,7 @@ func Get() Config {
 	defer _lock.RUnlock()
 
 	if _configFile == "" {
-		log.Fatalln("config file not load")
+		log.Fatal("config file not load")
 	}
 	return _config
 }

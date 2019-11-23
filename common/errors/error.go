@@ -6,7 +6,7 @@ import (
 )
 
 // 使用 错误码 和 error 创建新的 错误
-func New(errno *Errno, msg string) *Err {
+func Warp(errno *Errno, msg string) *Err {
 	return &Err{
 		errno,
 		msg,
@@ -31,5 +31,5 @@ func (err *Err) Code() int {
 }
 
 func (err *Err) Error() string {
-	return fmt.Sprintf("Err - errno: %d, message: %s, error: s%", err.Code, err.Message, err.InnerMsg)
+	return fmt.Sprintf("Err - errno: %d, message: %s, error: %s", err.Code, err.Message, err.InnerMsg)
 }
