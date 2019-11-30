@@ -1,0 +1,28 @@
+[run]
+httpAddr = ":8080"
+mode = "debug"
+maxAllowed = 10
+
+[endless]
+readTimeOut     = 10
+writeTimeOut    = 10
+maxHeaderBytes  = 20
+HammerTime      = 10
+
+[log]
+enable = true
+path = "./logs"
+level = "info"  # debug,info,warn,error
+rotateTime = 1   # 日志切割时间间隔：1天
+maxAge = 30     # 文件最大保存时间：30天
+
+[mysql]
+maxIdle = 5      # 最大空闲连接数
+maxOpen = 10     # 最大打开连接数
+debug = false
+
+webAddr = "root:1721267632@tcp(localhost:3306)/test?charset=utf8&loc=Asia%2FShanghai&parseTime=true&wait_timeout=3600"
+
+[jwt]
+encodeMethod = "HS256" # [HS256, HS384, HS512]
+maxEffectiveTime = "72h"  # 最大存活时间:秒("s")，分钟("m")，小时("h")

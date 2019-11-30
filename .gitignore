@@ -1,0 +1,14 @@
+.DS_Store
+Thumbs.db
+db.json
+*.log
+node_modules/
+public/
+.deploy*/
+*.iml
+.idea/
+output/
+logs/
+.vscode/
+gin-mvc
+app/model/*_test.go
